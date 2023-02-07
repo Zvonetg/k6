@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: createbuckets
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - command:
+        - /bin/sh
+        - -c
+        - 'until /usr/bin/mc config host add myminio http://minio:9000 ACCESS_KEY SECRET_KEY; do sleep 5; done;
+          /usr/bin/mc rm -r --force myminio/testbucket || true;
+          /usr/bin/mc mb myminio/testbucket --region=eu-west-1 || true;
+          /usr/bin/mc policy set download myminio/testbucket;
+          exit 0; '
+        image: minio/mc
+        name: createbuckets
